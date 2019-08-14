@@ -17,6 +17,7 @@ import com.kh.pojo.entity.MenuInfo;
 import com.manager.dao.MenuDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
  * Description
  */
 @Service
+@Transactional
 public class MenuService {
     @Autowired
     private MenuDao MenuDao;

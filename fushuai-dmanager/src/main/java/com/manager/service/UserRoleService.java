@@ -14,6 +14,7 @@ import com.kh.pojo.entity.UserRoleInfo;
 import com.manager.dao.UserRoleDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Description: TODO
@@ -24,9 +25,11 @@ import org.springframework.stereotype.Service;
  * Description
  */
 @Service
+@Transactional
 public class UserRoleService {
     @Autowired
     private UserRoleDao userRoleDao;
+
 
     //用户绑定角色
     public int adduserRole(UserRoleInfo ur) {
@@ -38,6 +41,18 @@ public class UserRoleService {
     public UserRoleInfo selectUserRole(Long userid) {
         UserRoleInfo userRoleInfo = userRoleDao.selectUserByUserId(userid);
         return userRoleInfo;
+    }
+
+    //通过角色id查找
+    public UserRoleInfo selectUserRoleByRoleId(Long roleId) {
+        UserRoleInfo userRoleInfo = userRoleDao.findByRoleId(roleId);
+        return userRoleInfo;
+    }
+
+
+    //通过用户id删除
+    public void deleteUserRoleByUserId(Long userId) throws Exception {
+        userRoleDao.deleteByUserId(userId);
     }
 
 }

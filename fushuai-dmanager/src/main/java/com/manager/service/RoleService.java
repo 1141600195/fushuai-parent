@@ -11,12 +11,15 @@
 package com.manager.service;
 
 import com.kh.pojo.entity.RoleInfo;
+import com.kh.pojo.entity.RoleMenuInfo;
 import com.kh.pojo.entity.UserInfo;
 import com.manager.dao.MenuDao;
 import com.manager.dao.RoleDao;
+import com.manager.dao.RoleMenuDao;
 import com.manager.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -34,6 +37,7 @@ import java.util.Map;
  * Description
  */
 @Service
+@Transactional
 public class RoleService {
 
     @Autowired
@@ -47,6 +51,9 @@ public class RoleService {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    private RoleMenuDao roleMenuDao;
 
 
     public Object roleList(Integer page, Integer pageSize, String roleName) {
@@ -98,15 +105,13 @@ public class RoleService {
 
 
     //角色删除
-    public int deleteRoleById(Long id) {
+    public void deleteRoleById(Long id) throws Exception {
         roleDao.deleteById(id);
-        return 200;
     }
 
     //角色添加
-    public int addRole(RoleInfo r) {
+    public void addRole(RoleInfo r)throws Exception {
         roleDao.save(r);
-        return 200;
     }
 
     //角色添加
@@ -114,6 +119,5 @@ public class RoleService {
         List<RoleInfo> bdrolelist = roleDao.findAll();
         return bdrolelist;
     }
-
 
 }
