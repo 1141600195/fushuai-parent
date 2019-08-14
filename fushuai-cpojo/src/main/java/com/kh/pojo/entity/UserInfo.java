@@ -57,6 +57,10 @@ public class UserInfo extends BaseAuditable {
     @Transient
     private String roleName;
 
+    @Column(name = "path")
+    private String path;
+
+
 
     //实体类中使用了@Table注解后，想要添加表中不存在的字段，
     // 就要使用@Transient这个注解了。
