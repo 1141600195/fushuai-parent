@@ -10,6 +10,8 @@
  */
 package com.kh.pojo.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -32,12 +34,15 @@ public class UserRoleInfo {
 
     @Id
     @Column(name = "id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     @Column(name = "roleId")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long roleId;
 
     @Column(name = "userId")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long userId;
 
 }
