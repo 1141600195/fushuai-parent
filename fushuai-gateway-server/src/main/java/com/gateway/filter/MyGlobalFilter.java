@@ -60,8 +60,8 @@ public class MyGlobalFilter implements GlobalFilter {
                 jsonObject = JWTUtils.decodeJwtTocken(listToken.get(0));
                 //如果不报错说明没有失效,重新加密登录信息
                 String token = JWTUtils.generateToken(jsonObject.toJSONString());
-                //存储到响应头中
-                response.getHeaders().set("token", token);
+                //todo 存储到响应头中
+               //response.getHeaders().set("token", token);
             } catch (JwtException e) {
                 e.printStackTrace();
                 //表示超时需要重新登录（这种情况一般发生在长时间不登录的情况下使用的旧的Token）
