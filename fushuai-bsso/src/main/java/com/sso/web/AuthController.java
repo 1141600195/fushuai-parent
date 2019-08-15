@@ -19,6 +19,8 @@ import com.kh.random.VerifyCodeUtils;
 import com.kh.utils.MD5;
 import com.kh.utils.UID;
 import com.sso.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -43,6 +45,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Controller
+@Api(tags = "sso服务接口")
 public class AuthController {
 
     @Autowired
@@ -52,12 +55,10 @@ public class AuthController {
     private UserService userService;
 
 
-
-
-
     //      登录操作
     @ResponseBody
     @RequestMapping("login")
+    @ApiOperation("登录方法")
     public ResponseResult toLogin(@RequestBody Map<String, Object> map) throws LoginException {
         ResponseResult responseResult = ResponseResult.getResponseResult();
 
@@ -90,7 +91,7 @@ public class AuthController {
                     //将生成的token存到redis
                     redisTemplate.opsForValue().set("USERINFO" + user.getId().toString(), token);
 
-                   //将用户的权限信息存入缓存
+                    //将用户的权限信息存入缓存
                     redisTemplate.opsForHash().putAll("USERDATAAUTH" + user.getId().toString(), user.getAuthmap());
 
                     //设置过期时间30分钟
@@ -115,9 +116,8 @@ public class AuthController {
     }
 
 
-
-//      滑动获取验证码
-
+    //      滑动获取验证码
+    @ApiOperation("获取验证码方法")
     @RequestMapping("getCode")
     @ResponseBody
     public ResponseResult getCode(HttpServletRequest request, HttpServletResponse response) {
@@ -145,21 +145,20 @@ public class AuthController {
     }
 
 
-
     //退出
+    @ApiOperation("退出方法")
     @RequestMapping("loginout")
     @ResponseBody
-    public ResponseResult  loginout(@RequestBody Map<String,Object> map){
-        ResponseResult responseResult=ResponseResult.getResponseResult();
+    public ResponseResult loginout(@RequestBody Map<String, Object> map) {
+        ResponseResult responseResult = ResponseResult.getResponseResult();
         //删除权限redis
-        redisTemplate.delete("USERDATAAUTH"+map.get("id").toString());
+        redisTemplate.delete("USERDATAAUTH" + map.get("id").toString());
         //删除用户redis
-        redisTemplate.delete("USERINFO"+map.get("id").toString());
+        redisTemplate.delete("USERINFO" + map.get("id").toString());
 
         responseResult.setSuccess("ok");
         return responseResult;
     }
-
 
 
 }
