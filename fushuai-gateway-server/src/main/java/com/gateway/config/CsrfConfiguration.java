@@ -1,7 +1,9 @@
 package com.gateway.config;
 
+import com.kh.jwt.JWTUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -25,13 +27,14 @@ public class CsrfConfiguration {
     private static final String ALLOWED_HEADERS = "x-requested-with,Content-Type,Authorization,credential,token";
     private static final String ALLOWED_METHODS = "*";
     //表示允许跨域的源
-    private static final String ALLOWED_ORIGIN = "http://localhost:8080";
+    private static final String ALLOWED_ORIGIN = "https://localhost:8080";
     private static final String ALLOWED_Expose = "*";
     private static final String MAX_AGE = "18000L";
 
     @Bean
     public WebFilter corsFilter() {
         return (ServerWebExchange ctx, WebFilterChain chain) -> {
+
             ServerHttpRequest request = ctx.getRequest();
             if (CorsUtils.isCorsRequest(request)) {
                 ServerHttpResponse response = ctx.getResponse();
@@ -56,6 +59,7 @@ public class CsrfConfiguration {
                 headers.add("Access-Control-Expose-Headers", ALLOWED_Expose);
                 //响应报头指示的请求的响应是否可以暴露于该页面。当true值返回时它可以被暴露。凭证是 Cookie ，授权标头或 TLS 客户端证书。
                 headers.add("Access-Control-Allow-Credentials", "true");
+                //headers.add("token", "");
                 if (request.getMethod() == HttpMethod.OPTIONS) {
                     response.setStatusCode(HttpStatus.OK);
                     return Mono.empty();
