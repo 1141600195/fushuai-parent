@@ -77,7 +77,7 @@ public class SwaggerConfig {
 
         Contact contact=new Contact("kh","http://www.baidu.com","1141600195@qq.com");
         ApiInfo apiInfo=new ApiInfo(
-                "这是文档的标题",
+                "这是sso服务接口",
                 "这是文档信息的描述信息",
                 "v-1.0",
                 "http://www.baidu.com",
