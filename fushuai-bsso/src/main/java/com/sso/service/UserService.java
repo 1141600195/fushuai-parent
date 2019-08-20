@@ -87,5 +87,11 @@ public class UserService {
     }
 
 
+    //通过手机号查找用户
+    public UserInfo findByTel(String tel) {
+        UserInfo byTel = userDao.findByTel(tel);
+        return byTel;
+    }
+
 
 }
