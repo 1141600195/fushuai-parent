@@ -72,7 +72,7 @@ public class MyGlobalFilter implements GlobalFilter {
                 return exchange.getResponse().setComplete();
             }
             // todo 获取权限
-            currentpath = currentpath.substring(currentpath.lastIndexOf("/"));
+            currentpath = currentpath.substring(currentpath.lastIndexOf("/")+1);
             System.out.println(currentpath + "========权限地址");
             //获取用户Id
             String userId = jsonObject.get("id").toString();
