@@ -11,6 +11,7 @@
 package com.manager.service;
 
 
+import com.kh.pojo.ResponseResult;
 import com.kh.pojo.entity.RoleInfo;
 import com.kh.pojo.entity.UserInfo;
 
@@ -18,17 +19,23 @@ import com.kh.pojo.entity.UserInfo;
 import com.manager.dao.RoleDao;
 import com.manager.dao.UserDao;
 
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.mail.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -146,5 +153,19 @@ public class UserService {
         UserInfo byLoginName = userDao.findByLoginName(loginName);
         return byLoginName;
     }
+
+    //通过邮箱查用户
+    public UserInfo selectByEmail(String email) {
+        UserInfo byEmail = userDao.findByEmail(email);
+        return byEmail;
+    }
+
+    //同过id查找用户
+    public UserInfo selectByUserinfoById(Long id){
+        UserInfo userInfo = userDao.selectByUserinfoById(id);
+        return userInfo;
+    }
+
+
 
 }
