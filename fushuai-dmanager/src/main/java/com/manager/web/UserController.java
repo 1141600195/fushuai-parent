@@ -16,6 +16,7 @@ import com.kh.pojo.entity.UserInfo;
 import com.kh.pojo.entity.UserRoleInfo;
 import com.kh.utils.MD5;
 import com.kh.utils.TwitterIdWorker;
+import com.kh.utils.UID;
 import com.manager.service.RoleService;
 import com.manager.service.UserRoleService;
 import com.manager.service.UserService;
@@ -28,11 +29,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.*;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Description: TODO
@@ -219,7 +227,7 @@ public class UserController {
         // 2.在workbook中添加一个sheet,对应Excel文件中的sheet
         XSSFSheet sheet = wb.createSheet("sheet1");
         // 3.设置表头，即每个列的列名
-        String[] titel = {"用户名字", "登录名字", "性别","电话", "时间"};
+        String[] titel = {"用户名字", "登录名字", "性别", "电话", "时间"};
         // 3.1创建第一行
         XSSFRow row = sheet.createRow(0);
         // 此处创建一个序号列
@@ -268,4 +276,108 @@ public class UserController {
     }
 
 
-}
+    // 发件人 账号和密码
+    public static final String MY_EMAIL_ACCOUNT = "kanghong0000@163.com";
+    public static final String MY_EMAIL_PASSWORD = "8227252822a";// 密码,是你自己的设置的授权码
+
+    // SMTP服务器(这里用的163 SMTP服务器)
+    public static final String MEAIL_163_SMTP_HOST = "smtp.163.com";
+    public static final String SMTP_163_PORT = "25";// 端口号,这个是163使用到的;QQ的应该是465或者875
+
+
+    //发送邮件
+    @RequestMapping("sendEmail")
+    @ResponseBody
+    public ResponseResult sendmail(@RequestBody Map<String, String> map) throws AddressException, MessagingException {
+
+        ResponseResult responseResult = new ResponseResult();
+
+        UserInfo toEmail = userService.selectByEmail(map.get("toEmail"));
+
+        String uuid16 = UID.getUUID16();
+        redisTemplate.opsForValue().set("p"+uuid16,toEmail.getId().toString());
+        redisTemplate.expire("p"+uuid16,10, TimeUnit.MINUTES);//10分钟有效
+
+        if (toEmail != null) {
+
+            Properties p = new Properties();
+            p.setProperty("mail.smtp.host", MEAIL_163_SMTP_HOST);
+            p.setProperty("mail.smtp.port", SMTP_163_PORT);
+            p.setProperty("mail.smtp.socketFactory.port", SMTP_163_PORT);
+            p.setProperty("mail.smtp.auth", "true");
+            p.setProperty("mail.smtp.socketFactory.class", "SSL_FACTORY");
+
+            Session session = Session.getInstance(p, new Authenticator() {
+                // 设置认证账户信息
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(MY_EMAIL_ACCOUNT, MY_EMAIL_PASSWORD);
+                }
+            });
+            session.setDebug(true);
+            System.out.println("创建邮件");
+            MimeMessage message = new MimeMessage(session);
+            // 发件人
+            message.setFrom(new InternetAddress(MY_EMAIL_ACCOUNT));
+            // 收件人和抄送人
+            message.setRecipients(Message.RecipientType.TO, map.get("toEmail"));
+
+
+            // 内容(这个内容还不能乱写,有可能会被SMTP拒绝掉;多试几次吧)
+            message.setSubject("密码重置");
+            message.setContent("尊敬的用户，请点击<a href='https://localhost:8080/zhaohui2?sid=" + "p"+uuid16 + "'>这里</a>", "text/html;charset=UTF-8");
+            message.setSentDate(new Date());
+            message.saveChanges();
+            System.out.println("准备发送");
+            Transport.send(message);
+
+            responseResult.setCode(200);
+            responseResult.setSuccess("发送成功");
+        } else {
+            responseResult.setCode(500);
+            responseResult.setSuccess("没有此邮箱");
+        }
+
+
+        return responseResult;
+    }
+
+
+    //修改密码
+    @RequestMapping("updatePassword")
+    @ResponseBody
+    public ResponseResult updatePassword(@RequestBody Map<String, String> map) {
+
+        String id = redisTemplate.opsForValue().get(map.get("id"));
+
+        ResponseResult responseResult = new ResponseResult();
+
+        UserInfo user = userService.selectByUserinfoById(Long.valueOf(id));
+
+        String password = MD5.encryptPassword(map.get("password"), "kh");//盐用作进一步加密
+        user.setPassword(password);
+
+        userService.addUser(user);
+        responseResult.setCode(200);
+        responseResult.setSuccess("修改成功");
+        return responseResult;
+    }
+
+    //修改密码
+    @RequestMapping("jianCeRedisp")
+    @ResponseBody
+    public ResponseResult jianCeRedisp(@RequestBody Map<String, String> map) {
+        ResponseResult responseResult = new ResponseResult();
+
+        String id = redisTemplate.opsForValue().get(map.get("id"));
+        if(id!=null&&!id.equals("")){
+            responseResult.setCode(200);
+        }else {
+            responseResult.setCode(500);
+        }
+
+
+        return responseResult;
+    }
+
+    }
